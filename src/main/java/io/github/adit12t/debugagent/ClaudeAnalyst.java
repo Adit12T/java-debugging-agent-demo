@@ -65,11 +65,12 @@ public class ClaudeAnalyst implements Analyst {
                 }
             }
             Map<String, Object> answer = Json.parseObject(extractJson(text.toString()));
-            return new Diagnosis(
-                    String.valueOf(answer.get("rootCause")),
-                    String.valueOf(answer.get("suggestedFix")),
-                    String.valueOf(answer.get("regressionTest")),
-                    "Claude (" + model + ")");
+            if (!(answer.get("rootCause") instanceof String rootCause)
+                    || !(answer.get("suggestedFix") instanceof String suggestedFix)
+                    || !(answer.get("regressionTest") instanceof String regressionTest)) {
+                throw new IllegalStateException("the reply is missing a required field");
+            }
+            return new Diagnosis(rootCause, suggestedFix, regressionTest, "Claude (" + model + ")");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return fallback.diagnose(group, snippet);
