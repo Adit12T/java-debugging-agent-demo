@@ -94,3 +94,7 @@ docs/sample-report.md          example report
 - Reads log files; it does not query a live Kibana or Elasticsearch instance.
 - Does not apply fixes or run the drafted tests. A developer reviews both.
 - The offline rules cover a handful of exception types.
+
+## License
+
+Copyright © 2026 Aditya Tripathi. All rights reserved. The code is published for viewing only; see [LICENSE](LICENSE). Security reports: see [SECURITY.md](SECURITY.md).
