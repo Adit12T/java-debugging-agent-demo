@@ -27,3 +27,15 @@ jobs:
 
       - name: Run the demo on the sample data
         run: mvn -B -q compile exec:java
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build image
+        run: docker build -t agent:ci .
+      - name: Run on the sample data
+        run: |
+          mkdir out && chmod 777 out
+          docker run --rm -v "$PWD/out:/out" agent:ci
+          test -s out/report.md

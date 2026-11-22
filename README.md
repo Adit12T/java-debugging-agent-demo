@@ -22,7 +22,7 @@ logs (NDJSON) ─▶ group errors ─▶ locate class + line ─▶ diagnose ─
 
 ## Run it
 
-Requires JDK 17 or newer. There are no runtime dependencies.
+Requires JDK 17 or newer (or just Docker, see below). There are no runtime dependencies.
 
 With Maven:
 
@@ -47,6 +47,26 @@ Report: out/report.md
 ```
 
 The full report for the sample data is in [docs/sample-report.md](docs/sample-report.md).
+
+### With Docker
+
+No JDK or Maven needed. The image compiles the agent with the JDK alone and runs it as a non-root user.
+
+```bash
+docker compose run --rm agent                                    # sample data, report in ./out
+ANTHROPIC_API_KEY=sk-... docker compose run --rm agent           # Claude analyst instead of the rules
+```
+
+Your own logs and source (mounted read-only):
+
+```bash
+LOGS_DIR=~/incident-42 SOURCE_DIR=~/my-service/src/main/java docker compose run --rm agent \
+  --logs /input/logs/app.ndjson --after-logs /input/logs/after.ndjson \
+  --source-root /input/src --app-package com.mycompany --out /out
+```
+
+Without Compose: `docker build -t java-debugging-agent . && docker run --rm -v "$PWD/out:/out" java-debugging-agent`.
+On Linux, add `AGENT_USER="$(id -u):$(id -g)"` before `docker compose` (or `--user` with `docker run`) so the files in `./out` belong to you.
 
 ### Options
 
@@ -87,6 +107,7 @@ src/test/java/.../debugagent   JUnit 5 tests
 sample-app/                    small Java app with two deliberate bugs (not compiled, only read)
 sample-data/                   synthetic logs before and after a fix
 docs/sample-report.md          example report
+Dockerfile, docker-compose.yml container build and one-shot run
 ```
 
 ## Limits of the demo
