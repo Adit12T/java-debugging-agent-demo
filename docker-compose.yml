@@ -1,0 +1,19 @@
+# One-shot run of the debugging agent. The report lands in ./out.
+#   docker compose run --rm agent
+#   ANTHROPIC_API_KEY=sk-... docker compose run --rm agent          # Claude analyst instead of rules
+#   LOGS_DIR=~/my-logs SOURCE_DIR=~/my-service/src/main/java docker compose run --rm agent \
+#     --logs /input/logs/app.ndjson --source-root /input/src --app-package com.mycompany --out /out
+name: java-debugging-agent
+services:
+  agent:
+    build: .
+    image: java-debugging-agent:latest
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5-5}
+    # On Linux, run as yourself so ./out stays yours: AGENT_USER="$(id -u):$(id -g)" docker compose run --rm agent
+    user: ${AGENT_USER:-10001:10001}
+    volumes:
+      - ./out:/out
+      - ${LOGS_DIR:-./sample-data}:/input/logs:ro
+      - ${SOURCE_DIR:-./sample-app/src/main/java}:/input/src:ro
